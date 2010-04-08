@@ -1,6 +1,7 @@
 require 'digest/sha1'
 
-class <%= class_name %> < ActiveRecord::Base
+class <%= class_name %> 
+  include MongoMapper::Document
   include Authentication
   include Authentication::ByPassword
   include Authentication::ByCookieToken
@@ -8,6 +9,25 @@ class <%= class_name %> < ActiveRecord::Base
   include Authorization::AasmRoles
 <% elsif options[:stateful] -%>
   include Authorization::StatefulRoles<% end %>
+
+  key :login, String
+  key :name, String
+  key :email, String
+  key :crypted_password, String
+  key :salt, String
+  key :created_at, DateTime
+  key :updated_at, DateTime
+  key :remember_token, String
+  key :remember_token_expires_at, DateTime
+  
+<% if options[:include_activation] -%>
+  key :activation_code, String
+  key :activated_at, DateTime<% end %>
+
+<% if options[:stateful] -%>
+  key :state, String
+  key :deleted_at, DateTime<% end %>
+
   validates_presence_of     :login
   validates_length_of       :login,    :within => 3..40
   validates_uniqueness_of   :login
